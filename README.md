@@ -37,7 +37,7 @@ A **no-code AI agent** built using **n8n**, **Telegram**, **Google Gemini**, and
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/telegram-spotify-n8n-ai-agent.git
+git clone https://github.com/PrathamMoreIndia/telegram-spotify-n8n-ai-agent.git
 ```
 
 ### 2. Import Workflow into n8n
