@@ -96,7 +96,7 @@ Next song
 
 ## 🧑‍💻 Author
 
-**Your Name**
+**Pratham More**
 No-Code Automation Developer (n8n)
 
 ---
