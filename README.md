@@ -27,8 +27,8 @@ A **no-code AI agent** built using **n8n**, **Telegram**, **Google Gemini**, and
 ## 📸 Demo
 
 ![Workflow](screenshots/workflow-overview.png)
-![Telegram](screenshots/telegram-chat.png)
-![Spotify](screenshots/spotify-playing.png)
+![Telegram](screenshots/telegram-chat.jpeg)
+![Spotify](screenshots/spotify-playing.jpeg)
 
 ---
 
