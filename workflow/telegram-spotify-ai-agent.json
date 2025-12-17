@@ -1,0 +1,383 @@
+{
+  "name": "Spotify Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -96
+      ],
+      "id": "4351b2ce-517f-4856-aa73-e8971ea39af5",
+      "name": "Telegram Trigger",
+      "webhookId": "bd525bcf-0382-4376-819a-c6a8260618f2",
+      "credentials": {
+        "telegramApi": {
+          "id": "CFDznuZ53ZYANcAZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7fee3fc2-daf1-493a-9a71-752cc5e199c9",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "be555ed6-28e6-4f28-9179-a37898f1fb5b",
+              "name": "chat_id ",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "d1db372e-b5ea-4dfe-8c4e-5188ed6fefaf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "You are a Spotify assistant. Your main task is to do whatever the user intends to do, but only in spotify. Take prompts from the user, and decide automatically about which spotify tool to use according to the tool name.\nIf user asks to add in queue, you need to search for track uri from the search track tool, then paste it into the add to queue tool. add \"spotify:track:\" to the uri before pasting into the add to queue tool."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "be4416bb-1be6-4c30-a690-1d6c05c45907",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json['chat_id '] }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        576,
+        128
+      ],
+      "id": "229a583c-c14c-4c96-8d3b-32229ea53bf8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        448,
+        128
+      ],
+      "id": "3bbb487c-a1ff-43cf-8591-aee32680c2c6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "c9bx3HS8h5I4wezN",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json['chat_id '] }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        -96
+      ],
+      "id": "d492550f-b1b2-44bd-baa3-c3297fb0807a",
+      "name": "Send a text message",
+      "webhookId": "8a4a3458-c8c5-4a24-9460-d02aff367e57",
+      "credentials": {
+        "telegramApi": {
+          "id": "CFDznuZ53ZYANcAZ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "track",
+        "operation": "search",
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search_Keyword', ``, 'string') }}",
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        704,
+        128
+      ],
+      "id": "1d7a844a-a569-40a7-99db-3490dded0dfb",
+      "name": "Search track",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Cvz0XUXTB7Lk89vr",
+          "name": "Spotify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Track_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        832,
+        128
+      ],
+      "id": "dd2b9d6b-739f-4d16-9d46-ecbce60c2758",
+      "name": "Add to queue",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Cvz0XUXTB7Lk89vr",
+          "name": "Spotify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "resume"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        960,
+        128
+      ],
+      "id": "8075cb8f-e927-4608-ac02-e700b08fa50b",
+      "name": "Resume the player",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Cvz0XUXTB7Lk89vr",
+          "name": "Spotify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pause"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        128
+      ],
+      "id": "57fd054c-eb91-4e89-8244-05a5d2cd3def",
+      "name": "Pause the player",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Cvz0XUXTB7Lk89vr",
+          "name": "Spotify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "previousSong"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        128
+      ],
+      "id": "b7b89c75-9686-4add-8cbc-856f83f86ecc",
+      "name": "Skip to the previous song",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Cvz0XUXTB7Lk89vr",
+          "name": "Spotify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "nextSong"
+      },
+      "type": "n8n-nodes-base.spotifyTool",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        128
+      ],
+      "id": "d57f9133-c284-4d54-9594-45ec2cc70d5f",
+      "name": "Skip to the next track",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "Cvz0XUXTB7Lk89vr",
+          "name": "Spotify account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search track": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to queue": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume the player": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pause the player": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip to the previous song": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip to the next track": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2a45146a-eebd-47b1-82e8-87a3ce72f0a5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bad81bf48f8106b52047ba346abc68d777a03fe23bdc6935ec6993ffd51bcb9e"
+  },
+  "id": "omgNy3yL39GoPe3B",
+  "tags": []
+}
